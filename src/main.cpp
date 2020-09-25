@@ -19,7 +19,6 @@ int main(int argc, char* argv[])
     }
 
     linearSort(array, array + size - 1);
-    relocateNegatives(array, array + size - 1);
 
     for (size_t i = 0; i < size; i++)
     {

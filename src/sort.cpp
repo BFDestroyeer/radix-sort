@@ -7,7 +7,7 @@ void linearSort(int* first, int* last)
     linearSortStage(first, last, sizeof(int) * 8);
     if (min < 0)
     {
-
+        relocateNegatives(first, last);
     }
 }
 
