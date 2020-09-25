@@ -1,13 +1,27 @@
+#include <time.h>
+
 #include <iostream>
+#include <random>
 
 #include "sort.h"
 
 int main(int argc, char* argv[])
 {
-    int array[] = {10, 53, 31, 54, 18, 42, 14, 56, 28};
-    linearSort(array, array + 8);
+    size_t size;
+    std::cout << "Please, input array size: ";
+    std::cin >> size;
+    int* array = new int[size];
 
-    for (size_t i = 0; i < 8; i++)
+    srand((unsigned) time(0));
+    for(size_t i = 0; i < size; i++)
+    {
+        array[i] = rand() % 10000 - 5000;
+    }
+
+    linearSort(array, array + size - 1);
+    relocateNegatives(array, array + size - 1);
+
+    for (size_t i = 0; i < size; i++)
     {
         std::cout << array[i] << ' ';
     }
