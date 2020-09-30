@@ -4,21 +4,21 @@
 #include <iterator>
 
 /**
- * @brief Single thread radix sort
+ * @brief Recursive sequential radix sort
  * 
  * @param first array first element pointer
  * @param last  array last element pointer
  */
-void linearSort(int* first, int* last);
+void recursiveSequentialSort(int* first, int* last);
 
 /**
- * @brief Single thread radix sort recursive algorithm stage
+ * @brief Recursive sequential radix sort stage
  * 
  * @param first array first element pointer
  * @param last  array last element pointer
  * @param order order of compared digit
  */
-void linearSortStage(int* first, int* last, size_t order);
+void recursiveSequentialSortStage(int* first, int* last, size_t order);
 
 /**
  * @brief Function to swap negative elements of arrat with positive

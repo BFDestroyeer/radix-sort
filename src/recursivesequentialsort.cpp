@@ -1,17 +1,17 @@
-#include "sort.h"
+#include "recursivesequentialsort.h"
 
 
-void linearSort(int* first, int* last)
+void recursiveSequentialSort(int* first, int* last)
 {
     int min = *std::min_element(first, last);
-    linearSortStage(first, last, sizeof(int) * 8);
+    recursiveSequentialSortStage(first, last, sizeof(int) * 8);
     if (min < 0)
     {
         relocateNegatives(first, last);
     }
 }
 
-void linearSortStage(int* first, int* last, size_t order)
+void recursiveSequentialSortStage(int* first, int* last, size_t order)
 {
     if ((order == 0) || (last <= first))
     {
@@ -42,8 +42,8 @@ void linearSortStage(int* first, int* last, size_t order)
             }
         }
     }
-    linearSortStage(first, end, order - 1);
-    linearSortStage(begin, last, order - 1);
+    recursiveSequentialSortStage(first, end, order - 1);
+    recursiveSequentialSortStage(begin, last, order - 1);
 }
 
 void relocateNegatives(int* first, int* last)
