@@ -1,31 +1,26 @@
 #include "sequentialsort.h"
+#include <iostream>
 
 void sequentialSort(int* first, int* last)
 {
-    //Finding maximum order of array values
-    int max_value = *std::max_element(first, last);
-    int max_order_mask = 1;
-    for (; (max_value / max_order_mask) != 0; max_order_mask *= 10);
-
-    std::list<int> result_list(first, last + 1);
-    for (int order_mask = 1; order_mask < max_order_mask; order_mask *= 10)
+    for (size_t i = 0; i < sizeof(int); i++)
     {
-        std::vector<std::list<int>> state_vector(10);
-        for (auto value : result_list)
+        size_t size = last - first + 1;
+        size_t count[256] = {};
+        for (int* j = first; j <= last; j++)
         {
-            int index = abs(value / order_mask) % 10;
-            state_vector[index].push_back(value);
+            count[*((unsigned char*) j + i)]++;
         }
-        result_list.clear();
-        for (auto list : state_vector)
+        size_t offset[256] = {};
+        for (size_t j = 1; j < 256; j++)
         {
-            result_list.splice(result_list.end(), list);
+            offset[j] = offset[j - 1] + count[j - 1];
         }
-    }
-    int* i = first;
-    auto j = result_list.begin();
-    for (; i <= last, j != result_list.end(); i++, j++)
-    {
-        *i = *j;
+        int* temp = new int[size];
+        for (int* j = first; j <= last; j++)
+        {
+            temp[offset[*((unsigned char*) j + i)]++] = *j;
+        }
+        memcpy(first, temp, size * sizeof(int));
     }
 }

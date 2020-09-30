@@ -40,7 +40,5 @@ int main(int argc, char* argv[])
         std::cout << array[i] << ' ';
     }*/
 
-    
-
     return 0;
 }
