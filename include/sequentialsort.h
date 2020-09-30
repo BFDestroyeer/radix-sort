@@ -1,8 +1,6 @@
 #pragma once
 
-#include <algorithm>
-#include <list>
-#include <vector>
+#include <cstring>
 
 /**
  * @brief Sequential sort algorithm for Little endian

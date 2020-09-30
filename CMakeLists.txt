@@ -6,6 +6,7 @@ include_directories(include)
 
 set(RADIX_SORT_SOURCE
     src/functions.cpp
+    src/logger.cpp
     src/main.cpp
     src/recursivesequentialsort.cpp
     src/sequentialsort.cpp
