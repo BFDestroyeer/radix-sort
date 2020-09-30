@@ -1,5 +1,4 @@
 #include "sequentialsort.h"
-#include <iostream>
 
 void sequentialSort(int* first, int* last)
 {
@@ -21,6 +20,6 @@ void sequentialSort(int* first, int* last)
         {
             temp[offset[*((unsigned char*) j + i)]++] = *j;
         }
-        memcpy(first, temp, size * sizeof(int));
+        std::memcpy(first, temp, size * sizeof(int));
     }
 }
