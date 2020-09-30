@@ -1,44 +1,37 @@
-#include <time.h>
-
 #include <chrono>
-#include <iostream>
-#include <random>
 
+#include "functions.h"
+#include "logger.h"
 #include "recursivesequentialsort.h"
 #include "sequentialsort.h"
 
 int main(int argc, char* argv[])
 {
-    size_t size = 1000000;
-    int* array = new int[size];
+    Logger logger;
+    size_t size = 10000000;
+    long long results[2][3];
 
-    srand((unsigned) time(0));
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < 3; i++)
     {
-        array[i] = rand();
+        int* array = new int[size];
+
+        fullWhitRandom(array, size);
+        auto sequential_begin = std::chrono::steady_clock::now();
+        sequentialSort(array, array + size - 1);
+        auto sequential_end = std::chrono::steady_clock::now();
+        results[0][i] = std::chrono::duration_cast<std::chrono::milliseconds>(sequential_end - sequential_begin).count();
+
+        fullWhitRandom(array, size);
+        auto recursive_sequential_begin = std::chrono::steady_clock::now();
+        recursiveSequentialSort(array, array + size - 1);
+        auto recursive_sequential_end = std::chrono::steady_clock::now();
+        results[1][i] = std::chrono::duration_cast<std::chrono::milliseconds>(recursive_sequential_end - recursive_sequential_begin).count();
+        
+        size *= 10;
     }
 
-    auto sequential_begin = std::chrono::steady_clock::now();
-    sequentialSort(array, array + size - 1);
-    auto sequential_end = std::chrono::steady_clock::now();
-    std::cout << "Sequential: " << std::chrono::duration_cast<std::chrono::milliseconds>(sequential_end - sequential_begin).count() << "ms"<< std::endl;
-
-    srand((unsigned) time(0));
-    for(size_t i = 0; i < size; i++)
-    {
-        array[i] = rand();
-    }
-
-    auto recursive_sequential_begin = std::chrono::steady_clock::now();
-    recursiveSequentialSort(array, array + size - 1);
-    auto recursive_sequential_end = std::chrono::steady_clock::now();
-    std::cout << "Recursive sequential: " << std::chrono::duration_cast<std::chrono::milliseconds>
-        (recursive_sequential_end - recursive_sequential_begin).count() << "ms"<< std::endl;
-
-    /*for (size_t i = 0; i < size; i++)
-    {
-        std::cout << array[i] << ' ';
-    }*/
+    logger.log("Sequential sort", results[0][0], results[0][1], results[0][2]);
+    logger.log("Recursive sequential sort", results[1][0], results[1][1], results[1][2]);
 
     return 0;
 }
