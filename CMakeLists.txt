@@ -6,7 +6,8 @@ include_directories(include)
 
 set(RADIX_SORT_SOURCE
     src/main.cpp
-    src/sort.cpp
+    src/recursivesequentialsort.cpp
+    src/sequentialsort.cpp
 )
 
 add_executable(radix-sort ${RADIX_SORT_SOURCE})
