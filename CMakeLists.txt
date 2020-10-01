@@ -10,6 +10,7 @@ set(RADIX_SORT_SOURCE
     src/main.cpp
     src/recursivesequentialsort.cpp
     src/sequentialsort.cpp
+    src/threadsort.cpp
 )
 
 add_executable(radix-sort ${RADIX_SORT_SOURCE})
