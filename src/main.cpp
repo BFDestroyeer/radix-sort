@@ -16,19 +16,19 @@ int main(int argc, char* argv[])
     {
         int* array = new int[size];
 
-        fullWhitRandom(array, size);
+        fillWhitRandom(array, size);
         auto recursive_sequential_begin = std::chrono::steady_clock::now();
         recursiveSequentialSort(array, array + size - 1);
         auto recursive_sequential_end = std::chrono::steady_clock::now();
         results[0][i] = std::chrono::duration_cast<std::chrono::milliseconds>(recursive_sequential_end - recursive_sequential_begin).count();
 
-        fullWhitRandom(array, size);
+        fillWhitRandom(array, size);
         auto sequential_begin = std::chrono::steady_clock::now();
         sequentialSort(array, array + size - 1);
         auto sequential_end = std::chrono::steady_clock::now();
         results[1][i] = std::chrono::duration_cast<std::chrono::milliseconds>(sequential_end - sequential_begin).count();
         
-        fullWhitRandom(array, size);
+        fillWhitRandom(array, size);
         auto thread_begin = std::chrono::steady_clock::now();
         threadSort(array, array + size - 1);
         auto thread_end = std::chrono::steady_clock::now();
