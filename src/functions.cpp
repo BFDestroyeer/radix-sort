@@ -1,6 +1,6 @@
 #include "functions.h"
 
-void fullWhitRandom(int* array, size_t size)
+void fillWhitRandom(int* array, size_t size)
 {
     srand((unsigned) time(0));
     for(size_t i = 0; i < size; i++)
@@ -31,4 +31,5 @@ void relocateNegatives(int* first, int* last)
     {
         first[k] = result[k];
     }
+    delete result;
 }

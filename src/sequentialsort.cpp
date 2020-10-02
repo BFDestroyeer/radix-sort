@@ -21,5 +21,6 @@ void sequentialSort(int* first, int* last)
             temp[offset[*((unsigned char*) j + i)]++] = *j;
         }
         std::memcpy(first, temp, size * sizeof(int));
+        delete[] temp;
     }
 }
