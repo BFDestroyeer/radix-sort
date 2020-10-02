@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef linux
+#include <cstring>
+#endif
+
 #include <thread>
 
 /**

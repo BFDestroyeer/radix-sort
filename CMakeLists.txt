@@ -14,3 +14,13 @@ set(RADIX_SORT_SOURCE
 )
 
 add_executable(radix-sort ${RADIX_SORT_SOURCE})
+
+if (UNIX)
+    find_package(Threads REQUIRED)
+    if(THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(radix-sort PUBLIC "-pthread")
+    endif()
+    if(CMAKE_THREAD_LIBS_INIT)
+    target_link_libraries(radix-sort "${CMAKE_THREAD_LIBS_INIT}")
+    endif()
+endif (UNIX)
