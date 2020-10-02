@@ -3,7 +3,7 @@
 Logger::Logger()
 {
     file_stream.open("./latest.md", std::ios_base::out);
-    file_stream << "|Name|10m|100m|1000m|" << std::endl;
+    file_stream << "|Name|1 000 000|100 000 000|1 000 000 000|" << std::endl;
     file_stream << "|-|-|-|-|" << std::endl;
 }
 
@@ -12,7 +12,17 @@ Logger::~Logger()
     file_stream.close();
 }
 
-void Logger::log(std::string name, long long time_10m, long long time_100m, long long time_1000m)
+Logger& Logger::instance()
 {
-    file_stream << "|" << name << "|" << time_10m << "|" << time_100m << "|" << time_1000m << "|" << std::endl;
+    static Logger logger;
+    return logger;
+}
+
+void Logger::log(std::string name, std::chrono::nanoseconds time_10m, std::chrono::nanoseconds time_100m,
+    std::chrono::nanoseconds time_1000m)
+{
+    file_stream << "|" << name << "|" <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(time_10m).count() << "ms|" <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(time_100m).count() << "ms|" <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(time_1000m).count() << "ms|" << std::endl;
 }

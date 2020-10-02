@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <fstream>
 #include <string>
 
@@ -12,5 +13,8 @@ class Logger
     Logger();
     ~Logger();
 
-    void log(std::string name, long long time_10m, long long time_100m, long long time_1000m);
+    static Logger& instance();
+
+    void log(std::string name, std::chrono::nanoseconds time_10m, std::chrono::nanoseconds time_100m,
+        std::chrono::nanoseconds time_1000m);
 };
