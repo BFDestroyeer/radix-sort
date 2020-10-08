@@ -4,11 +4,10 @@ void threadSort(int* first, int* last, size_t threads_count)
 {
     std::thread** threads = new std::thread*[threads_count];
     size_t part = (last - first + 1) / threads_count;
-    size_t* counts = new size_t[256 * threads_count];
     for (size_t i = 0; i < sizeof(int); i++)
     {
         //Counting
-        memset(counts, 0, 256 * threads_count * sizeof(size_t));
+        size_t* counts = new size_t[256 * threads_count]();
         for (size_t j = 0; j < threads_count - 1; j++)
         {
             threads[j] = new std::thread(counter, first + j * (part + 1), first + j * (part + 1) + part, i, counts + 256 * j);
@@ -42,11 +41,11 @@ void threadSort(int* first, int* last, size_t threads_count)
             threads[j]->join();
             delete threads[j];
         }
-        memcpy(first, stage_result, (last - first + 1) * sizeof(int));
+        std::memcpy(first, stage_result, (last - first + 1) * sizeof(int));
+        delete[] counts;
         delete[] stage_result;
     }
     delete[] threads;
-    delete[] counts;
 }
 
 void counter(int* first, int* last, size_t byte_number, size_t* counts)
