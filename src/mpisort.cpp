@@ -1,8 +1,9 @@
 #include "mpisort.h"
+#include <iostream>
 
-void mpiSort(int* first, int* last, int rank)
+void mpiSort(int* first, int* last, size_t size, int rank)
 {
-    size_t size = last - first + 1;
+    //size_t size = last - first + 1;
     int process_count;
     MPI_Comm_size(MPI_COMM_WORLD, &process_count);
     int* send_counts = new int[process_count]();
@@ -12,16 +13,15 @@ void mpiSort(int* first, int* last, int rank)
     {
         send_counts[i] = (int) (size / process_count);
         send_displs[i] = (int) current_size;
-        current_size += (int) (size / process_count);
+        current_size += send_displs[i];
     }
     send_counts[process_count - 1] = (int) (size - (size / process_count) * (process_count - 1));
     send_displs[process_count - 1] = (int) current_size;
-
     for (size_t i = 0; i < sizeof(int); i++)
     {
         //Counting
         int* buffer = new int[send_counts[rank]]();
-        MPI_Scatterv(first, send_counts, send_displs,MPI_INT, (void*) buffer, send_counts[rank], MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Scatterv(first, send_counts, send_displs,MPI_INT, buffer, send_counts[rank], MPI_INT, 0, MPI_COMM_WORLD);
         uint64_t counts[256] = {};
         for (int* j = buffer; j < buffer + send_counts[rank]; j++)
         {
@@ -34,14 +34,17 @@ void mpiSort(int* first, int* last, int rank)
         }
         //Calculating offset
         MPI_Gather(counts, 256, MPI_UINT64_T, total_counts, 256, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-        size_t summ = 0;
-        for (size_t j = 0; j < 256; j++)
+        if (rank == 0)
         {
-            for (size_t k = 0; k < process_count; k++)
+            size_t summ = 0;
+            for (size_t j = 0; j < 256; j++)
             {
-                size_t temp = total_counts[j + k * 256];
-                total_counts[j + k * 256] = summ;
-                summ += temp;
+                for (size_t k = 0; k < process_count; k++)
+                {
+                    size_t temp = total_counts[j + k * 256];
+                    total_counts[j + k * 256] = summ;
+                    summ += temp;
+                }
             }
         }
         MPI_Scatter(total_counts, 256, MPI_UINT64_T, counts, 256, MPI_UINT64_T, 0, MPI_COMM_WORLD);
@@ -61,19 +64,19 @@ void mpiSort(int* first, int* last, int rank)
         delete[] destination;
         delete[] total_counts;
         //Relocating
-        int* stage_result = new int[size];
         if (rank == 0)
         {
+            int* stage_result = new int[size];
             for (size_t j = 0; j < size; j++)
             {
                 stage_result[total_destination[j]] = first[j];
             }
+            for (size_t j = 0; j < size; j++)
+            {
+                first[j] = stage_result[j];
+            }
+            delete[] stage_result;
         }
-        for (size_t j = 0; j < size; j++)
-        {
-            first[j] = stage_result[j];
-        }
-        delete[] stage_result;
         delete[] total_destination;
     }
     delete[] send_counts;
