@@ -6,4 +6,4 @@
 
 #include <mpi.h>
 
-void mpiSort(int* first, int* last, size_t size, int rank);
+void mpiSort(int* first, int* last, int rank);

@@ -1,9 +1,9 @@
 #include "mpisort.h"
-#include <iostream>
 
-void mpiSort(int* first, int* last, size_t size, int rank)
+void mpiSort(int* first, int* last, int rank)
 {
-    //size_t size = last - first + 1;
+    uint64_t size = last - first + 1;
+    MPI_Bcast(&size, 1, MPI_UINT64_T, 0, MPI_COMM_WORLD);
     int process_count;
     MPI_Comm_size(MPI_COMM_WORLD, &process_count);
     int* send_counts = new int[process_count]();
@@ -13,7 +13,7 @@ void mpiSort(int* first, int* last, size_t size, int rank)
     {
         send_counts[i] = (int) (size / process_count);
         send_displs[i] = (int) current_size;
-        current_size += send_displs[i];
+        current_size += send_counts[i];
     }
     send_counts[process_count - 1] = (int) (size - (size / process_count) * (process_count - 1));
     send_displs[process_count - 1] = (int) current_size;
