@@ -8,7 +8,7 @@ Logger::Logger()
     std::system("wmic cpu get name | find /v \"Name\" > ./latest.md");
     #endif
     file_stream.open("./latest.md", std::ios::app);
-    file_stream << "|Name|Threads count|1 000 000|100 000 000|1 000 000 000|" << std::endl;
+    file_stream << "|Name|Threads count|10 000 000 items|100 000 000 items|1 000 000 000 items|" << std::endl;
     file_stream << "|-|-|-|-|-|" << std::endl;
 }
 
@@ -23,8 +23,8 @@ Logger& Logger::instance()
     return logger;
 }
 
-void Logger::log(std::string name, size_t threads_count, std::chrono::nanoseconds time_10m, std::chrono::nanoseconds time_100m,
-    std::chrono::nanoseconds time_1000m)
+void Logger::log(std::string name, size_t threads_count, std::chrono::nanoseconds time_10m,
+    std::chrono::nanoseconds time_100m, std::chrono::nanoseconds time_1000m)
 {
     file_stream << "|" << name << "|"
         << threads_count << "|"
