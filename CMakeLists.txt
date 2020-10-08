@@ -8,6 +8,7 @@ set(RADIX_SORT_SOURCE
     src/functions.cpp
     src/logger.cpp
     src/main.cpp
+    src/mpisort.cpp
     src/recursivesequentialsort.cpp
     src/sequentialsort.cpp
     src/threadsort.cpp
@@ -15,6 +16,8 @@ set(RADIX_SORT_SOURCE
 
 add_executable(radix-sort ${RADIX_SORT_SOURCE})
 
+
+# pthread for Unix
 if (UNIX)
     find_package(Threads REQUIRED)
     if(THREADS_HAVE_PTHREAD_ARG)
@@ -24,3 +27,8 @@ if (UNIX)
     target_link_libraries(radix-sort "${CMAKE_THREAD_LIBS_INIT}")
     endif()
 endif (UNIX)
+
+# MPI
+find_package(MPI REQUIRED)
+include_directories(SYSTEM "${MPI_CXX_INCLUDE_DIRS}")
+target_link_libraries(radix-sort ${MPI_CXX_LIBRARIES})

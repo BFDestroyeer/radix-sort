@@ -31,5 +31,5 @@ void relocateNegatives(int* first, int* last)
     {
         first[k] = result[k];
     }
-    delete result;
+    delete[] result;
 }
