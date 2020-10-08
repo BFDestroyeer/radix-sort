@@ -1,4 +1,6 @@
 #include <chrono>
+#include <iostream>
+#include <thread>
 
 #include "functions.h"
 #include "logger.h"
@@ -11,7 +13,7 @@ int main(int argc, char* argv[])
     size_t size = 10000000;
     std::chrono::nanoseconds results[3][3];
 
-    for (size_t i = 0; i < 3; i++)
+    /*for (size_t i = 0; i < 3; i++)
     {
         int* array = new int[size];
 
@@ -35,13 +37,13 @@ int main(int argc, char* argv[])
 
         size *= 10;
         delete[] array;
-    }
+    }*/
  
-    Logger::instance().log("Recursive sequential sort", results[0][0], results[0][1], results[0][2]);
-    Logger::instance().log("Sequential sort", results[1][0], results[1][1], results[1][2]);
-    Logger::instance().log("Thread sort", results[2][0], results[2][1], results[2][2]);
+    Logger::instance().log("Recursive sequential sort", 1, results[0][0], results[0][1], results[0][2]);
+    Logger::instance().log("Sequential sort", 1, results[1][0], results[1][1], results[1][2]);
+    Logger::instance().log("Thread sort", std::thread::hardware_concurrency(), results[2][0], results[2][1], results[2][2]);
 
-
+    std::cout << "Done" << std::endl;
 
     return 0;
 }
