@@ -71,10 +71,7 @@ void mpiSort(int* first, int* last, int rank)
             {
                 stage_result[total_destination[j]] = first[j];
             }
-            for (size_t j = 0; j < size; j++)
-            {
-                first[j] = stage_result[j];
-            }
+            std::memcpy(first, stage_result, size * sizeof(int));
             delete[] stage_result;
         }
         delete[] total_destination;
