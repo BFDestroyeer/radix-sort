@@ -19,20 +19,11 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &process_count);
 
-    size_t size = 10;
+    size_t size = 10000000;
 
-    int* array = new int[size];
-    fillWhitRandom(array, size);
-    ompSort(array, array + size - 1);
+    std::chrono::nanoseconds results[5][3] = {};
 
-    for (size_t i = 0; i < size; i++)
-    {
-        std::cout << array[i] << ' ';
-    }
-
-    std::chrono::nanoseconds results[4][3] = {};
-
-    /*for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 2; i++)
     {
         if (rank == 0)
         {
@@ -85,14 +76,21 @@ int main(int argc, char* argv[])
         auto thread_end = std::chrono::steady_clock::now();
         results[2][i] = thread_end - thread_begin;
 
+        fillWhitRandom(array, size);
+        auto omp_begin = std::chrono::steady_clock::now();
+        threadSort(array, array + size - 1);
+        auto omp_end = std::chrono::steady_clock::now();
+        results[4][i] = omp_end - omp_begin;
+
         size *= 10;
         delete[] array;
-    }*/
+    }
  
     Logger::instance().log("Recursive sequential sort", 1, results[0][0], results[0][1], results[0][2]);
     Logger::instance().log("Sequential sort", 1, results[1][0], results[1][1], results[1][2]);
     Logger::instance().log("Thread sort", std::thread::hardware_concurrency(), results[2][0], results[2][1], results[2][2]);
     Logger::instance().log("MPI Internal sort", process_count, results[3][0], results[3][1], results[3][2]);
+    Logger::instance().log("OpenMP sort", std::thread::hardware_concurrency(), results[4][0], results[4][1], results[4][2]);
 
     std::cout << "Done" << std::endl;
 
