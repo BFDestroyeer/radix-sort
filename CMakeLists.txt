@@ -9,6 +9,7 @@ set(RADIX_SORT_SOURCE
     src/logger.cpp
     src/main.cpp
     src/mpisort.cpp
+    src/ompsort.cpp
     src/recursivesequentialsort.cpp
     src/sequentialsort.cpp
     src/threadsort.cpp
@@ -32,3 +33,8 @@ endif (UNIX)
 find_package(MPI REQUIRED)
 include_directories(SYSTEM "${MPI_CXX_INCLUDE_DIRS}")
 target_link_libraries(radix-sort ${MPI_CXX_LIBRARIES})
+
+# OpenMP
+if(MSVC)
+    target_compile_options(radix-sort PUBLIC "/openmp")
+endif()
