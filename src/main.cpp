@@ -7,6 +7,7 @@
 #include "functions.h"
 #include "logger.h"
 #include "mpisort.h"
+#include "ompsort.h"
 #include "recursivesequentialsort.h"
 #include "sequentialsort.h"
 #include "threadsort.h"
@@ -18,10 +19,20 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &process_count);
 
-    size_t size = 10000000;
+    size_t size = 10;
+
+    int* array = new int[size];
+    fillWhitRandom(array, size);
+    ompSort(array, array + size - 1);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        std::cout << array[i] << ' ';
+    }
+
     std::chrono::nanoseconds results[4][3] = {};
 
-    for (size_t i = 0; i < 2; i++)
+    /*for (size_t i = 0; i < 2; i++)
     {
         if (rank == 0)
         {
@@ -76,7 +87,7 @@ int main(int argc, char* argv[])
 
         size *= 10;
         delete[] array;
-    }
+    }*/
  
     Logger::instance().log("Recursive sequential sort", 1, results[0][0], results[0][1], results[0][2]);
     Logger::instance().log("Sequential sort", 1, results[1][0], results[1][1], results[1][2]);
