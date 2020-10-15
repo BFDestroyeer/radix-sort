@@ -1,10 +1,11 @@
 #include "ompsort.h"
 #include <iostream>
-void ompSort(int* first, int* last)
+void ompSort(int* first, int* last, size_t threads_count)
 {
     size_t size = last - first + 1;
     size_t* counts = nullptr;
     int* stage_result = new int[size];
+    omp_set_num_threads(static_cast<int>(threads_count));
     #pragma omp parallel shared(counts, stage_result)
     {
         int thread_number = omp_get_thread_num();
