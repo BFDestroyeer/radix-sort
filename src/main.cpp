@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
             fillWhitRandom(array, size);
             MPI_Barrier(MPI_COMM_WORLD);
             auto mpi_begin = std::chrono::steady_clock::now();
-            mpiSort(array, array + size - 1, rank);
+            mpiSort(array, array + size - 1);
             auto mpi_end = std::chrono::steady_clock::now();
             results[3][i] = mpi_end - mpi_begin;
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
         else
         {
             MPI_Barrier(MPI_COMM_WORLD);
-            mpiSort(nullptr, nullptr, rank);
+            mpiSort(nullptr, nullptr);
         }
     }
     if (rank == 0)

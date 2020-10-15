@@ -17,15 +17,16 @@ class Logger
 
     public:
     /**
-     * @brief Default Logger constructor
+     * @brief Construct a new Logger object
      * 
      */
-    Logger() = default;
+    Logger();
+    
     /**
-     * @brief Default Logger destructor
+     * @brief Destroy the Logger object
      * 
      */
-    ~Logger() = default;
+    ~Logger();
 
     /**
      * @brief Returns static Logger instance
