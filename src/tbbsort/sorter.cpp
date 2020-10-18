@@ -1,14 +1,14 @@
-#include "tbbsort/sort.h"
+#include "tbbsort/sorter.h"
 
 namespace TBBSort
 {
-    Sort::Sort(int* first, int* last, size_t threads_count) : p_first(first),
+    Sorter::Sorter(int* first, int* last, size_t threads_count) : p_first(first),
         p_last(last), c_threads_count(threads_count)
     {
 
     }
 
-    tbb::task* Sort::execute()
+    tbb::task* Sorter::execute()
     {
         Counter** counters = new Counter*[c_threads_count];
         Relocator** relocators = new Relocator*[c_threads_count];
@@ -26,10 +26,11 @@ namespace TBBSort
             set_ref_count(static_cast<int>(c_threads_count) + 1);
             for (size_t j = 0; j < c_threads_count; j++)
             {
-                spawn(*(counters[i]));
+                spawn(*(counters[j]));
             }
             wait_for_all();
         }
         return nullptr;
     }
 }
+

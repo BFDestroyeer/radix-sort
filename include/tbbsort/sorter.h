@@ -9,7 +9,7 @@
 
 namespace TBBSort
 {
-    class Sort : public tbb::task
+    class Sorter : public tbb::task
     {
         protected:
         int* p_first;
@@ -17,9 +17,12 @@ namespace TBBSort
         const size_t c_threads_count;
 
         public:
-        Sort(int* first, int* last, size_t threads_count = std::thread::hardware_concurrency());
-        ~Sort() = default;
+        Sorter(int* first, int* last, size_t threads_count = std::thread::hardware_concurrency());
+        ~Sorter() = default;
 
         tbb::task* execute();
     };
+
+    void tbbSort(int* first, int* last, size_t threads_count = std::thread::hardware_concurrency());
 }
+
