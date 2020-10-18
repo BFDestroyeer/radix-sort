@@ -1,11 +1,12 @@
 #include "mpisort.h"
 
-void mpiSort(int* first, int* last, int rank)
+void mpiSort(int* first, int* last, MPI_Comm comunicator)
 {
     uint64_t size = last - first + 1;
-    MPI_Bcast(&size, 1, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-    int process_count;
-    MPI_Comm_size(MPI_COMM_WORLD, &process_count);
+    MPI_Bcast(&size, 1, MPI_UINT64_T, 0, comunicator);
+    int rank, process_count;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(comunicator, &process_count);
     int* send_counts = new int[process_count]();
     int* send_displs = new int[process_count]();
     size_t current_size = 0;
@@ -21,7 +22,7 @@ void mpiSort(int* first, int* last, int rank)
     {
         //Counting
         int* buffer = new int[send_counts[rank]]();
-        MPI_Scatterv(first, send_counts, send_displs,MPI_INT, buffer, send_counts[rank], MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Scatterv(first, send_counts, send_displs,MPI_INT, buffer, send_counts[rank], MPI_INT, 0, comunicator);
         uint64_t counts[256] = {};
         for (int* j = buffer; j < buffer + send_counts[rank]; j++)
         {
@@ -33,7 +34,7 @@ void mpiSort(int* first, int* last, int rank)
             total_counts = new uint64_t[256 * process_count];
         }
         //Calculating offset
-        MPI_Gather(counts, 256, MPI_UINT64_T, total_counts, 256, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+        MPI_Gather(counts, 256, MPI_UINT64_T, total_counts, 256, MPI_UINT64_T, 0, comunicator);
         if (rank == 0)
         {
             size_t summ = 0;
@@ -47,7 +48,7 @@ void mpiSort(int* first, int* last, int rank)
                 }
             }
         }
-        MPI_Scatter(total_counts, 256, MPI_UINT64_T, counts, 256, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+        MPI_Scatter(total_counts, 256, MPI_UINT64_T, counts, 256, MPI_UINT64_T, 0, comunicator);
         //Calculating destination
         uint64_t* destination = new uint64_t[send_counts[rank]]();
         for (size_t j = 0; j < send_counts[rank]; j++)
@@ -59,7 +60,7 @@ void mpiSort(int* first, int* last, int rank)
         {
             total_destination = new uint64_t[size];
         }
-        MPI_Gatherv(destination, send_counts[rank], MPI_UINT64_T, total_destination, send_counts, send_displs, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+        MPI_Gatherv(destination, send_counts[rank], MPI_UINT64_T, total_destination, send_counts, send_displs, MPI_UINT64_T, 0, comunicator);
         delete[] buffer;
         delete[] destination;
         delete[] total_counts;
