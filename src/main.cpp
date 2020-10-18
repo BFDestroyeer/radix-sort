@@ -4,16 +4,20 @@
 
 #include <mpi.h>
 
+#include "tbb/task_scheduler_init.h"
+
 #include "functions.h"
 #include "logger.h"
 #include "mpisort.h"
 #include "ompsort.h"
 #include "recursivesequentialsort.h"
 #include "sequentialsort.h"
+#include "tbbsort.h"
 #include "threadsort.h"
 
 int main(int argc, char* argv[])
 {
+    tbb::task_scheduler_init init(std::thread::hardware_concurrency());
     MPI_Init(&argc, &argv);
     int rank, process_count;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -21,7 +25,7 @@ int main(int argc, char* argv[])
 
     size_t size = 10000000;
 
-    std::chrono::nanoseconds results[5][3] = {};
+    std::chrono::nanoseconds results[6][3] = {};
 
     for (size_t i = 0; i < 2; i++)
     {
@@ -78,9 +82,15 @@ int main(int argc, char* argv[])
 
         fillWhitRandom(array, size);
         auto omp_begin = std::chrono::steady_clock::now();
-        threadSort(array, array + size - 1);
+        ompSort(array, array + size - 1);
         auto omp_end = std::chrono::steady_clock::now();
         results[4][i] = omp_end - omp_begin;
+        
+        fillWhitRandom(array, size);
+        auto tbb_begin = std::chrono::steady_clock::now();
+        tbbSort(array, array + size - 1, std::thread::hardware_concurrency());
+        auto tbb_end = std::chrono::steady_clock::now();
+        results[5][i] = tbb_end - tbb_begin;
 
         size *= 10;
         delete[] array;
@@ -91,6 +101,7 @@ int main(int argc, char* argv[])
     Logger::instance().log("Thread sort", std::thread::hardware_concurrency(), results[2][0], results[2][1], results[2][2]);
     Logger::instance().log("MPI Internal sort", process_count, results[3][0], results[3][1], results[3][2]);
     Logger::instance().log("OpenMP sort", std::thread::hardware_concurrency(), results[4][0], results[4][1], results[4][2]);
+    Logger::instance().log("TBB sort", std::thread::hardware_concurrency(), results[5][0], results[5][1], results[5][2]);
 
     std::cout << "Done" << std::endl;
 
