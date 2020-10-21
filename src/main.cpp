@@ -110,6 +110,6 @@ int main(int argc, char* argv[])
     {
         return 0;
     }
-    std::cout << '|' << sort_name << '|' << results[0].count() << '|' << results[1].count() << '|' << results[2].count() << '|' << std::endl;
+    std::cout << '|' << sort_name << '|' << thread_count << '|' << results[0].count() << '|' << results[1].count() << '|' << results[2].count() << '|' << std::endl;
     return 0;
 }
