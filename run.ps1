@@ -28,6 +28,6 @@ if ($Env:OS -eq 'Windows_NT')
 & $executable_path -rseq >> 'results.md'
 & $executable_path -seq >> 'results.md'
 & $executable_path -thread >> 'results.md'
-& mpiexec -n $computer_system.numberoflogicalprocessors $executable_path -mpi
+& mpiexec -n $computer_system.numberoflogicalprocessors $executable_path -mpi >> 'results.md'
 & $executable_path -omp >> 'results.md'
 & $executable_path -tbb >> 'results.md'
