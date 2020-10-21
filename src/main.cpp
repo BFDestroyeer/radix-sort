@@ -29,82 +29,87 @@ int main(int argc, char* argv[])
     {
         std::cout << "Wrong nuber of arguments" << std::endl;
     }
-    for (size_t i = 1; i < argc; i++)
+    std::string argument(argv[1]);
+    std::string sort_name;
+    std::array<std::chrono::milliseconds, 3> results;
+    size_t size = 10000000;
+    int* array = nullptr;
+    for (size_t i = 0; i < 3; i++)
     {
-        std::string argument(argv[i]);
-        std::array<std::chrono::nanoseconds, 3> results;
-        size_t size = 10000000;
-        int* array = nullptr;
-        for (size_t j = 0; j < 3; j++)
+        array = new int[size];
+        if (rank == 0)
         {
-            array = new int[size];
+            fillWhitRandom(array, size);
+        }
+        if (argument == "-rseq") //Recursive sequential sort
+        {
+            sort_name = "Recursive sequential sort";
+            auto begin_time = std::chrono::steady_clock::now();
+            recursiveSequentialSort(array, array + size - 1);
+            auto end_time = std::chrono::steady_clock::now();
+            results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+        }
+        else if (argument == "-seq") //Sequential sort
+        {
+            sort_name = "Sequential sort";
+            auto begin_time = std::chrono::steady_clock::now();
+            sequentialSort(array, array + size - 1);
+            auto end_time = std::chrono::steady_clock::now();
+            results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+        }
+        else if (argument == "-thread") //Thread sort
+        {
+            sort_name = "Thread sort";
+            thread_count = std::thread::hardware_concurrency();
+            auto begin_time = std::chrono::steady_clock::now();
+            threadSort(array, array + size - 1);
+            auto end_time = std::chrono::steady_clock::now();
+            results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+        }
+        else if (argument == "-mpi") //MPI sort
+        {
+            sort_name = "MPI Internal sort";
+            thread_count = process_count;
             if (rank == 0)
             {
-            fillWhitRandom(array, size);
-            }
-            if (argument == "-rseq") //Recursive sequential sort
-            {
+                MPI_Barrier(MPI_COMM_WORLD);
                 auto begin_time = std::chrono::steady_clock::now();
-                recursiveSequentialSort(array, array + size - 1);
+                mpiSort(array, array + size - 1);
                 auto end_time = std::chrono::steady_clock::now();
-                results[i] = end_time - begin_time;
+                results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
             }
-            else if (argument == "-seq") //Sequential sort
+            else
             {
-                auto begin_time = std::chrono::steady_clock::now();
-                sequentialSort(array, array + size - 1);
-                auto end_time = std::chrono::steady_clock::now();
-                results[i] = end_time - begin_time;
-            }
-            else if (argument == "-thread") //Thread sort
-            {
-                thread_count = std::thread::hardware_concurrency();
-                auto begin_time = std::chrono::steady_clock::now();
-                threadSort(array, array + size - 1);
-                auto end_time = std::chrono::steady_clock::now();
-                results[i] = end_time - begin_time;
-            }
-            else if (argument == "-mpi") //MPI sort
-            {
-                thread_count = process_count;
-                if (rank == 0)
-                {
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    auto begin_time = std::chrono::steady_clock::now();
-                    mpiSort(array, array + size - 1);
-                    auto end_time = std::chrono::steady_clock::now();
-                    results[i] = end_time - begin_time;
+                MPI_Barrier(MPI_COMM_WORLD);
+                mpiSort(nullptr, nullptr);
                 }
-                else
-                {
-                    MPI_Barrier(MPI_COMM_WORLD);
-                    mpiSort(nullptr, nullptr);
-                }
-            }
-            else if (argument == "-omp") //OpenMP sort
-            {
-                thread_count = std::thread::hardware_concurrency();
-                auto begin_time = std::chrono::steady_clock::now();
-                ompSort(array, array + size - 1);
-                auto end_time = std::chrono::steady_clock::now();
-                results[i] = end_time - begin_time;
-            }
-            else if (argument == "-tbb") //Intel TBB sort
-            {
-                thread_count = std::thread::hardware_concurrency();
-                auto begin_time = std::chrono::steady_clock::now();
-                tbbSort(array, array + size - 1, thread_count);
-                auto end_time = std::chrono::steady_clock::now();
-                results[i] = end_time - begin_time;
-            }
-            delete[] array;
-            size *= 10;
         }
+        else if (argument == "-omp") //OpenMP sort
+        {
+            sort_name = "OpenMP sort";
+            thread_count = std::thread::hardware_concurrency();
+            auto begin_time = std::chrono::steady_clock::now();
+            ompSort(array, array + size - 1);
+            auto end_time = std::chrono::steady_clock::now();
+            results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+        }
+        else if (argument == "-tbb") //Intel TBB sort
+        {
+            sort_name = "TBB sort";
+            thread_count = std::thread::hardware_concurrency();
+            auto begin_time = std::chrono::steady_clock::now();
+            tbbSort(array, array + size - 1, thread_count);
+            auto end_time = std::chrono::steady_clock::now();
+            results[i] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time);
+        }
+        delete[] array;
+        size *= 10;
     }
     MPI_Finalize();
     if (rank != 0)
     {
         return 0;
     }
+    std::cout << '|' << sort_name << '|' << results[0].count() << '|' << results[1].count() << '|' << results[2].count() << '|' << std::endl;
     return 0;
 }
