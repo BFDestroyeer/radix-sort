@@ -68,6 +68,10 @@ int main(int argc, char* argv[])
         }
         else if (argument == "-mpi") //MPI sort
         {
+            if (i == 2)
+            {
+                break; //Disabled 3rd iteration
+            }
             sort_name = "MPI Internal sort";
             thread_count = process_count;
             if (rank == 0)
@@ -82,7 +86,7 @@ int main(int argc, char* argv[])
             {
                 MPI_Barrier(MPI_COMM_WORLD);
                 mpiSort(nullptr, nullptr);
-                }
+            }
         }
         else if (argument == "-omp") //OpenMP sort
         {
