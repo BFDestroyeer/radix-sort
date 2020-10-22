@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
     if (argument == "-test")
     {
         sortAccuracyTest(100);
+        MPI_Finalize();
         return 0;
     }
     std::string sort_name;

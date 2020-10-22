@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "mpi.h"
+
 #include "functions.h"
 #include "mpisort.h"
 #include "ompsort.h"

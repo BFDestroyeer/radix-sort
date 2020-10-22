@@ -14,6 +14,38 @@ bool sorted(int *begin, int *end)
 
 void sortAccuracyTest(size_t size)
 {
+    
+
+    //MPI sort
+    int rank, process_count;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &process_count);
+    if (rank == 0)
+    {
+        int *array = new int[size];
+        fillWhitRandom(array, size);
+        MPI_Barrier(MPI_COMM_WORLD);
+        mpiSort(array, array + size - 1);
+        if (sorted(array, array + size - 1))
+        {
+            std::cout << "[RIGHT] MPI sort" << std::endl;
+        }
+        else
+        {
+            std::cout << "[WRONG] MPI sort" << std::endl;
+            for (size_t i = 0; i < size; i++)
+            {
+                std::cout << array[i] << ' ';
+            }
+        }
+    }
+    else
+    {
+        MPI_Barrier(MPI_COMM_WORLD);
+        mpiSort(nullptr, nullptr);
+        return;
+    }
+
     int *array = new int[size];
 
     //Recursive seqential sort
@@ -51,8 +83,6 @@ void sortAccuracyTest(size_t size)
     {
         std::cout << "[WRONG] Thread sort" << std::endl;
     }
-
-    //MPI sort
 
     //OpenMP sort
     fillWhitRandom(array, size);
