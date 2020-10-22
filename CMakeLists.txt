@@ -15,6 +15,7 @@ set(RADIX_SORT_SOURCE
     src/ompsort.cpp
     src/recursivesequentialsort.cpp
     src/sequentialsort.cpp
+    src/sortaccuracytest.cpp
     src/tbbsort.cpp
     src/threadsort.cpp
 )

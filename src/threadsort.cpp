@@ -3,6 +3,7 @@
 void threadSort(int* first, int* last, size_t threads_count)
 {
     std::thread** threads = new std::thread*[threads_count];
+    int *stage_result = new int[last - first + 1];
     size_t part = (last - first + 1) / threads_count;
     for (size_t i = 0; i < sizeof(int); i++)
     {
@@ -30,7 +31,6 @@ void threadSort(int* first, int* last, size_t threads_count)
             }
         }
         //Relocating
-        int* stage_result = new int[last - first + 1];
         for (size_t j = 0; j < threads_count - 1; j++)
         {
             threads[j] = new std::thread(relocator, first + j * (part + 1), first + j * (part + 1) + part, counts + 256 * j, i, stage_result);
@@ -43,8 +43,9 @@ void threadSort(int* first, int* last, size_t threads_count)
         }
         std::memcpy(first, stage_result, (last - first + 1) * sizeof(int));
         delete[] counts;
-        delete[] stage_result;
+        
     }
+    delete[] stage_result;
     delete[] threads;
 }
 

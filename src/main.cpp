@@ -1,5 +1,8 @@
+#include <algorithm>
+#include <array>
 #include <chrono>
 #include <iostream>
+#include <string>
 #include <thread>
 
 #include <mpi.h>
@@ -12,6 +15,7 @@
 #include "ompsort.h"
 #include "recursivesequentialsort.h"
 #include "sequentialsort.h"
+#include "sortaccuracytest.h"
 #include "tbbsort.h"
 #include "threadsort.h"
 
@@ -19,92 +23,115 @@ int main(int argc, char* argv[])
 {
     tbb::task_scheduler_init init(std::thread::hardware_concurrency());
     MPI_Init(&argc, &argv);
-    int rank, process_count;
+    int rank, process_count, thread_count = 1;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &process_count);
 
-    size_t size = 10000000;
-
-    std::chrono::nanoseconds results[6][3] = {};
-
-    for (size_t i = 0; i < 2; i++)
+    if (argc < 2)
     {
-        if (rank == 0)
-        {
-            int* array = new int[size];
-            fillWhitRandom(array, size);
-            MPI_Barrier(MPI_COMM_WORLD);
-            auto mpi_begin = std::chrono::steady_clock::now();
-            mpiSort(array, array + size - 1);
-            auto mpi_end = std::chrono::steady_clock::now();
-            results[3][i] = mpi_end - mpi_begin;
-
-            size *= 10;
-            delete[] array;
-        }
-        else
-        {
-            MPI_Barrier(MPI_COMM_WORLD);
-            mpiSort(nullptr, nullptr);
-        }
+        std::cout << "Wrong nuber of arguments" << std::endl;
     }
-    if (rank == 0)
+    std::string argument(argv[1]);
+    if (argument == "-test")
     {
-        size = 10000000;
-    }
-    else
-    {
+        sortAccuracyTest(100);
         MPI_Finalize();
         return 0;
     }
-    
+    std::string sort_name;
+    std::array<std::array<int64_t, 3>, 3> results;
+    size_t size = 10000000;
+    int* array = nullptr;
     for (size_t i = 0; i < 3; i++)
     {
-        int* array = new int[size];
-
-        fillWhitRandom(array, size);
-        auto recursive_sequential_begin = std::chrono::steady_clock::now();
-        recursiveSequentialSort(array, array + size - 1);
-        auto recursive_sequential_end = std::chrono::steady_clock::now();
-        results[0][i] = recursive_sequential_end - recursive_sequential_begin;
-
-        fillWhitRandom(array, size);
-        auto sequential_begin = std::chrono::steady_clock::now();
-        sequentialSort(array, array + size - 1);
-        auto sequential_end = std::chrono::steady_clock::now();
-        results[1][i] = sequential_end - sequential_begin;
-        
-        fillWhitRandom(array, size);
-        auto thread_begin = std::chrono::steady_clock::now();
-        threadSort(array, array + size - 1);
-        auto thread_end = std::chrono::steady_clock::now();
-        results[2][i] = thread_end - thread_begin;
-
-        fillWhitRandom(array, size);
-        auto omp_begin = std::chrono::steady_clock::now();
-        ompSort(array, array + size - 1);
-        auto omp_end = std::chrono::steady_clock::now();
-        results[4][i] = omp_end - omp_begin;
-        
-        fillWhitRandom(array, size);
-        auto tbb_begin = std::chrono::steady_clock::now();
-        tbbSort(array, array + size - 1, std::thread::hardware_concurrency());
-        auto tbb_end = std::chrono::steady_clock::now();
-        results[5][i] = tbb_end - tbb_begin;
-
+        for (size_t j = 0; j < 3; j++)
+        {
+            array = new int[size];
+            if (rank == 0)
+            {
+                fillWhitRandom(array, size);
+            }
+            if (argument == "-rseq") //Recursive sequential sort
+            {
+                sort_name = "Recursive sequential sort";
+                auto begin_time = std::chrono::steady_clock::now();
+                recursiveSequentialSort(array, array + size - 1);
+                auto end_time = std::chrono::steady_clock::now();
+                results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+            }
+            else if (argument == "-seq") //Sequential sort
+            {
+                sort_name = "Sequential sort";
+                auto begin_time = std::chrono::steady_clock::now();
+                sequentialSort(array, array + size - 1);
+                auto end_time = std::chrono::steady_clock::now();
+                results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+            }
+            else if (argument == "-thread") //Thread sort
+            {
+                sort_name = "Thread sort";
+                thread_count = std::thread::hardware_concurrency();
+                auto begin_time = std::chrono::steady_clock::now();
+                threadSort(array, array + size - 1);
+                auto end_time = std::chrono::steady_clock::now();
+                results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+            }
+            else if (argument == "-mpi") //MPI sort
+            {
+                if (i == 2)
+                {
+                    break; //Disabled 3rd iteration
+                }
+                sort_name = "MPI Internal sort";
+                thread_count = process_count;
+                if (rank == 0)
+                {
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    auto begin_time = std::chrono::steady_clock::now();
+                    mpiSort(array, array + size - 1);
+                    auto end_time = std::chrono::steady_clock::now();
+                    results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+                }
+                else
+                {
+                    MPI_Barrier(MPI_COMM_WORLD);
+                    mpiSort(nullptr, nullptr);
+                }
+            }
+            else if (argument == "-omp") //OpenMP sort
+            {
+                sort_name = "OpenMP sort";
+                thread_count = std::thread::hardware_concurrency();
+                auto begin_time = std::chrono::steady_clock::now();
+                ompSort(array, array + size - 1);
+                auto end_time = std::chrono::steady_clock::now();
+                results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+            }
+            else if (argument == "-tbb") //Intel TBB sort
+            {
+                sort_name = "TBB sort";
+                thread_count = std::thread::hardware_concurrency();
+                auto begin_time = std::chrono::steady_clock::now();
+                tbbSort(array, array + size - 1, thread_count);
+                auto end_time = std::chrono::steady_clock::now();
+                results[i][j] = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - begin_time).count();
+            }
+            delete[] array;
+        }
         size *= 10;
-        delete[] array;
     }
- 
-    Logger::instance().log("Recursive sequential sort", 1, results[0][0], results[0][1], results[0][2]);
-    Logger::instance().log("Sequential sort", 1, results[1][0], results[1][1], results[1][2]);
-    Logger::instance().log("Thread sort", std::thread::hardware_concurrency(), results[2][0], results[2][1], results[2][2]);
-    Logger::instance().log("MPI Internal sort", process_count, results[3][0], results[3][1], results[3][2]);
-    Logger::instance().log("OpenMP sort", std::thread::hardware_concurrency(), results[4][0], results[4][1], results[4][2]);
-    Logger::instance().log("TBB sort", std::thread::hardware_concurrency(), results[5][0], results[5][1], results[5][2]);
-
-    std::cout << "Done" << std::endl;
-
     MPI_Finalize();
+    if (rank != 0)
+    {
+        return 0;
+    }
+    for (size_t i = 0; i < 3; i++)
+    {
+        std::sort(results[i].begin(), results[i].end());
+    }
+    std::cout << '|' << sort_name << " (Best)"
+        << '|' << thread_count << '|' << results[0][0] << "ms|" << results[1][0] << "ms|" << results[2][0] << "ms|" << std::endl;
+    std::cout << '|' << sort_name << " (Median)"
+        << '|' << thread_count << '|' << results[0][1] << "ms|" << results[1][1] << "ms|" << results[2][1] << "ms|" << std::endl;
     return 0;
 }

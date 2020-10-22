@@ -10,7 +10,7 @@ namespace TBBSort
 
     tbb::task* Sorter::execute()
     {
-        
+        int* stage_result = new int[p_last - p_first + 1];
         size_t part = (p_last - p_first + 1) / c_threads_count;
         Counter** counters = new Counter*[c_threads_count];
         Relocator** relocators = new Relocator*[c_threads_count];
@@ -43,7 +43,6 @@ namespace TBBSort
                 }
             }
             //Relocating
-            int* stage_result = new int[p_last - p_first + 1];
             for (size_t j = 0; j < c_threads_count - 1; j++)
             {
                 relocators[j] = new (allocate_child()) Relocator(p_first + j * (part + 1),
@@ -60,8 +59,8 @@ namespace TBBSort
             wait_for_all();
             std::memcpy(p_first, stage_result, (p_last - p_first + 1) * sizeof(int));
             delete[] counts;
-            delete[] stage_result;
         }
+        delete[] stage_result;
         delete[] counters;
         delete[] relocators;
         return nullptr;
