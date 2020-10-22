@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
         std::sort(results[i].begin(), results[i].end());
     }
     std::cout << '|' << sort_name << " (Best)"
-        << '|' << thread_count << '|' << results[0][0] << '|' << results[1][0] << '|' << results[2][0] << '|' << std::endl;
+        << '|' << thread_count << '|' << results[0][0] << "ms|" << results[1][0] << "ms|" << results[2][0] << "ms|" << std::endl;
     std::cout << '|' << sort_name << " (Median)"
-        << '|' << thread_count << '|' << results[0][1] << '|' << results[1][1] << '|' << results[2][1] << '|' << std::endl;
+        << '|' << thread_count << '|' << results[0][1] << "ms|" << results[1][1] << "ms|" << results[2][1] << "ms|" << std::endl;
     return 0;
 }
