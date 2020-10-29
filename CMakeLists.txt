@@ -44,7 +44,7 @@ if(MSVC)
     target_compile_options(radix-sort PUBLIC "/openmp")
 endif()
 if(UNIX)
-    target_compile_options(radix-sort PUBLIC "-fopenmp")
+    target_link_libraries(radix-sort -fopenmp)
 endif()
 
 # Intel TBB
